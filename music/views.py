@@ -32,6 +32,21 @@ def index(request):
             return render(request, 'music/index.html', {'albums': albums})
 
 
+def lamusica(request):
+    albums = Album.objects.all()
+    song_results = Song.objects.all()
+    query = request.GET.get("q")
+
+    if query:
+        albums = albums.filter(Q(album_title__icontains=query) | Q(artist__icontains=query)).distinct()
+        song_results = song_results.filter(Q(song_title__icontains=query)).distinct()
+
+        return render(request, 'music/lamusica.html', {'albums': albums,'songs': song_results,})
+    else:
+        return render(request, 'music/lamusica.html', {'albums': albums})
+
+
+
 def login_user(request):
 
     if request.method == "POST":
@@ -94,6 +109,7 @@ def favorite_album(request, album_id):
 def songs(request, filter_by):
 
     if not request.user.is_authenticated():
+        
         return render(request, 'music/login.html')
     else:
         try:
